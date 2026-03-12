@@ -53,6 +53,18 @@
       animation: bodyShake 0.4s ease-in-out;
     }
 
+    body.tilted {
+      transform: rotate(2deg);
+    }
+
+    body.zoomed {
+      transform: scale(1.03);
+    }
+
+    body.inverted {
+      filter: invert(1) hue-rotate(180deg);
+    }
+
     @keyframes bodyShake {
       0% { transform: translate(0, 0); }
       20% { transform: translate(-4px, 3px); }
@@ -1044,8 +1056,20 @@
     let fakeClickBaitTimeout = null;
     let chaosActive = false;
 
-    // Web Audio minimal pour sons de rage
     let audioCtx = null;
+    let secretBuffer = "";
+    let tiltClicks = 0;
+    let chaosTimer = null;
+
+    const konamiSequence = [
+      "ArrowUp", "ArrowUp",
+      "ArrowDown", "ArrowDown",
+      "ArrowLeft", "ArrowRight",
+      "ArrowLeft", "ArrowRight",
+      "b", "a"
+    ];
+    let konamiIndex = 0;
+
     function initAudio() {
       if (!audioCtx) {
         try {
@@ -1151,6 +1175,8 @@
       if (rage >= 95 && chaosActive) {
         shakeBody();
       }
+
+      document.body.classList.toggle("tilted", chaosActive && rage > 70 && Math.random() < 0.4);
 
       if (rage >= 100) {
         showRagePopup();
@@ -1343,6 +1369,67 @@
       });
     }
 
+    function activateZenMode() {
+      log("Mode secret ZEN activé. Tu crois que ça va t’aider ?", "info");
+      hintText.textContent = "Respire. Ça ne changera rien.";
+      document.body.style.filter = "grayscale(0.4) saturate(0.6)";
+      updateRage(-30);
+      setTimeout(() => {
+        document.body.style.filter = "";
+        hintText.textContent = "Ne rate pas. Le jeu le prend personnellement.";
+        log("Mode ZEN terminé. Retour à la souffrance.", "info");
+      }, 8000);
+    }
+
+    function fakeCrashScreen() {
+      log("Le jeu a 'crash'. Comme toi.", "rage");
+      const crash = document.createElement("div");
+      crash.style.position = "fixed";
+      crash.style.inset = "0";
+      crash.style.background = "#000";
+      crash.style.color = "#0f0";
+      crash.style.fontFamily = "monospace";
+      crash.style.fontSize = "0.9rem";
+      crash.style.padding = "20px";
+      crash.style.zIndex = "9999";
+      crash.style.whiteSpace = "pre";
+      crash.textContent =
+        "CRITICAL_ERROR: RAGE_OVERFLOW_EXCEPTION\n\n" +
+        "Le système a détecté un niveau de tilt anormal.\n" +
+        "Solution recommandée : arrêter de cliquer.\n\n" +
+        "Appuie sur une touche pour 'redémarrer'.";
+      document.body.appendChild(crash);
+
+      function clearCrash() {
+        document.body.removeChild(crash);
+        window.removeEventListener("keydown", clearCrash);
+        log("Redémarrage émotionnel terminé. Tu peux recommencer à souffrir.", "info");
+      }
+
+      window.addEventListener("keydown", clearCrash);
+    }
+
+    function startChaosLoop() {
+      clearInterval(chaosTimer);
+      if (!chaosActive) {
+        document.body.classList.remove("zoomed", "inverted");
+        return;
+      }
+      chaosTimer = setInterval(() => {
+        if (!chaosActive) return;
+        const roll = Math.random();
+        if (roll < 0.25) {
+          shakeBody();
+        } else if (roll < 0.5) {
+          document.body.classList.toggle("zoomed");
+        } else if (roll < 0.75) {
+          document.body.classList.toggle("inverted");
+        } else {
+          flashScreen();
+        }
+      }, 1600);
+    }
+
     target.addEventListener("click", (e) => {
       e.stopPropagation();
       if (!gameRunning) {
@@ -1419,8 +1506,13 @@
       hintText.textContent = "Plus tu t’énerves, plus le jeu est content.";
       playTiltSound();
       vibrate([80, 40, 80]);
+      tiltClicks++;
       if (mode === "impossible" || mode === "chaos") {
         moveTarget(true);
+      }
+      if (tiltClicks >= 5) {
+        tiltClicks = 0;
+        fakeCrashScreen();
       }
     });
 
@@ -1455,6 +1547,7 @@
         log("Mode changé : " + mode.toUpperCase() + ". Mauvaise idée.", "info");
         updateRage(3);
         scheduleMovement();
+        startChaosLoop();
       });
     });
 
@@ -1466,7 +1559,44 @@
       moveTarget();
     });
 
-    // Init
+    window.addEventListener("keydown", (e) => {
+      const key = e.key;
+
+      if (key.length === 1 && key.match(/[a-zA-Z]/)) {
+        secretBuffer += key.toUpperCase();
+        if (secretBuffer.length > 10) {
+          secretBuffer = secretBuffer.slice(-10);
+        }
+        if (secretBuffer.endsWith("ZEN")) {
+          secretBuffer = "";
+          activateZenMode();
+        }
+      }
+
+      if (key === konamiSequence[konamiIndex]) {
+        konamiIndex++;
+        if (konamiIndex === konamiSequence.length) {
+          konamiIndex = 0;
+          chaosActive = true;
+          mode = "chaos";
+          modeButtons.forEach((b) => {
+            b.classList.toggle("active", b.dataset.mode === "chaos");
+          });
+          document.body.classList.add("chaos");
+          log("Konami code détecté. Mode CHAOS++ activé. Tu l’as cherché.", "info");
+          updateRage(70 - rage);
+          scheduleMovement();
+          startChaosLoop();
+        }
+      } else {
+        if (konamiSequence.includes(key)) {
+          // reset partiel si on casse la séquence
+        } else {
+          konamiIndex = 0;
+        }
+      }
+    });
+
     updateRage(0);
     updateAccuracy();
     moveTarget();
@@ -1475,4 +1605,5 @@
   </script>
 </body>
 </html>
+
 
