@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rage Game – Tu ne gagneras jamais</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-alt: #0b1020;
+      --accent: #ff3366;
+      --accent-soft: rgba(255, 51, 102, 0.2);
+      --text: #f5f5f5;
+      --muted: #9ca3af;
+      --danger: #ff0044;
+      --success: #00ff99;
+      --card: #111827;
+      --border: #1f2933;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --transition-fast: 0.18s ease-out;
+      --transition-med: 0.28s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 45%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    .noise {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      opacity: 0.08;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.9'/%3E%3C/svg%3E");
+      mix-blend-mode: soft-light;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #020617 0%, #020617 40%, #111827 100%);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      padding: 22px 22px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: conic-gradient(
+        from 210deg,
+        rgba(255, 51, 102, 0.12),
+        transparent,
+        rgba(56, 189, 248, 0.12),
+        transparent,
+        rgba(244, 63, 94, 0.12)
+      );
+      opacity: 0.7;
+      filter: blur(40px);
+      z-index: -1;
+    }
+
+    .card-inner {
+      border-radius: 20px;
+      background: radial-gradient(circle at top left, #111827 0, #020617 55%);
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      padding: 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 780px) {
+      .card {
+        padding: 16px;
+      }
+      .card-inner {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--danger);
+      box-shadow: 0 0 12px rgba(248, 113, 113, 0.9);
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    h1 span.accent {
+      background: linear-gradient(120deg, #f97316, #ec4899, #22d3ee);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .mode-switcher {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .mode-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    .mode-buttons {
+      display: inline-flex;
+      padding: 3px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      gap: 4px;
+    }
+
+    .mode-btn {
+      border: none;
+      outline: none;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background var(--transition-fast), color var(--transition-fast),
+        transform 0.08s ease-out;
+      white-space: nowrap;
+    }
+
+    .mode-btn.active {
+      background: radial-gradient(circle at top, #f97316, #ec4899);
+      color: #020617;
+      font-weight: 600;
+      box-shadow: 0 0 18px rgba(248, 113, 113, 0.7);
+    }
+
+    .mode-btn:active {
+      transform: scale(0.96);
+    }
+
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      flex: 1;
+      min-width: 120px;
+      border-radius: var(--radius-md);
+      background: radial-gradient(circle at top left, #111827 0, #020617 70%);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .pill-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    .pill-value {
+      font-size: 0.95rem;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .pill-value span.main {
+      font-weight: 600;
+    }
+
+    .pill-value span.sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .progress {
+      position: relative;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .progress-bar {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e, #facc15, #f97316, #ef4444);
+      transition: width 0.25s ease-out;
+    }
+
+    .progress-glow {
+      position: absolute;
+      inset: -12px;
+      background: radial-gradient(circle, rgba(248, 113, 113, 0.4), transparent);
+      opacity: 0;
+      transition: opacity 0.25s ease-out;
+      pointer-events: none;
+    }
+
+    .progress-glow.active {
+      opacity: 1;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hint span.key {
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .game-area {
+      margin-top: 8px;
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+      min-height: 220px;
+    }
+
+    @media (max-width: 480px) {
+      .game-area {
+        min-height: 260px;
+      }
+    }
+
+    .game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .game-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .game-title-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.9);
+    }
+
+    .game-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .ghost-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .ghost-toggle input {
+      display: none;
+    }
+
+    .ghost-pill {
+      width: 26px;
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      position: relative;
+      transition: background var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .ghost-knob {
+      position: absolute;
+      top: 1px;
+      left: 1px;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.9);
+      transition: transform var(--transition-fast), background var(--transition-fast),
+        box-shadow var(--transition-fast);
+    }
+
+    .ghost-toggle input:checked + .ghost-pill {
+      background: rgba(248, 113, 113, 0.2);
+      border-color: rgba(248, 113, 113, 0.8);
+    }
+
+    .ghost-toggle input:checked + .ghost-pill .ghost-knob {
+      transform: translateX(10px);
+      background: #f97316;
+      box-shadow: 0 0 10px rgba(248, 113, 113, 0.9);
+    }
+
+    .rage-meter {
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .rage-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--danger);
+      box-shadow: 0 0 12px rgba(248, 113, 113, 0.9);
+      animation: pulse 1.4s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.9;
+      }
+      50% {
+        transform: scale(1.4);
+        opacity: 0.4;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0.9;
+      }
+    }
+
+    .playfield {
+      position: relative;
+      border-radius: 16px;
+      background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%);
+      border: 1px dashed rgba(55, 65, 81, 0.9);
+      height: 170px;
+      overflow: hidden;
+    }
+
+    @media (max-width: 480px) {
+      .playfield {
+        height: 210px;
+      }
+    }
+
+    .target {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #f97316 0, #ef4444 40%, #7f1d1d 100%);
+      box-shadow: 0 0 18px rgba(248, 113, 113, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #020617;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      user-select: none;
+      transform-origin: center;
+      transition: transform 0.08s ease-out, filter 0.08s ease-out;
+    }
+
+    .target span {
+      pointer-events: none;
+    }
+
+    .target:hover {
+      transform: scale(1.06) translateZ(0);
+      filter: brightness(1.1);
+    }
+
+    .target.ghost {
+      opacity: 0.18;
+      pointer-events: none;
+      box-shadow: none;
+      filter: grayscale(0.9);
+    }
+
+    .target.fake {
+      background: radial-gradient(circle, #22c55e 0, #16a34a 40%, #052e16 100%);
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.9);
+    }
+
+    .target.shake {
+      animation: shake 0.25s;
+    }
+
+    @keyframes shake {
+      0% {
+        transform: translateX(0);
+      }
+      25% {
+        transform: translateX(-4px);
+      }
+      50% {
+        transform: translateX(4px);
+      }
+      75% {
+        transform: translateX(-3px);
+      }
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+    .floating-text {
+      position: absolute;
+      font-size: 0.8rem;
+      color: var(--danger);
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, -50%);
+      animation: floatUp 0.7s ease-out forwards;
+      text-shadow: 0 0 10px rgba(248, 113, 113, 0.9);
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -10%);
+      }
+      20% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -80%);
+      }
+    }
+
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .log {
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 10px 12px;
+      min-height: 120px;
+      max-height: 180px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+    }
+
+    .log-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .log-list {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+    }
+
+    .log-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .log-list::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.6);
+      border-radius: 999px;
+    }
+
+    .log-entry {
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    .log-entry span.tag {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 1px 5px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .log-entry.rage span.tag {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: #fecaca;
+    }
+
+    .log-entry.success span.tag {
+      border-color: rgba(34, 197, 94, 0.8);
+      color: #bbf7d0;
+    }
+
+    .log-entry span.msg {
+      flex: 1;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: radial-gradient(circle at top, #020617 0, #020617 60%, #020617 100%);
+      color: var(--text);
+      font-size: 0.8rem;
+      padding: 7px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      outline: none;
+      transition: background var(--transition-fast), transform 0.08s ease-out,
+        border-color var(--transition-fast), box-shadow var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .btn span.icon {
+      font-size: 0.9rem;
+    }
+
+    .btn.primary {
+      border-color: rgba(248, 113, 113, 0.9);
+      background: radial-gradient(circle at top, #f97316, #ec4899);
+      color: #020617;
+      font-weight: 600;
+      box-shadow: 0 0 18px rgba(248, 113, 113, 0.7);
+    }
+
+    .btn.danger {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+
+    .btn:active {
+      transform: scale(0.96) translateZ(0);
+    }
+
+    .btn:hover {
+      background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%);
+      box-shadow: 0 0 12px rgba(148, 163, 184, 0.4);
+    }
+
+    .btn.primary:hover {
+      box-shadow: 0 0 22px rgba(248, 113, 113, 0.9);
+    }
+
+    .footer {
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .footer span.highlight {
+      color: #f97316;
+    }
+
+    .footer span.subtle {
+      opacity: 0.7;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.3rem;
+      }
+      .subtitle {
+        font-size: 0.78rem;
+      }
+      .pill {
+        min-width: calc(50% - 4px);
+      }
+      .btn {
+        flex: 1;
+        justify-content: center;
+      }
+      .footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="wrapper">
+    <div class="card">
+      <div class="card-inner">
+        <div class="left-panel">
+          <div class="header">
+            <div class="title-block">
+              <div class="badge">
+                <span class="badge-dot"></span>
+                <span>Rage-Optimisé</span>
+              </div>
+              <h1>
+                <span class="accent">Rage Game</span>
+                <span>v1.0</span>
+              </h1>
+              <p class="subtitle">
+                Clique sur la cible. C’est tout. Facile. Enfin… en théorie.
+              </p>
+            </div>
+            <div class="mode-switcher">
+              <span class="mode-label">Mode</span>
+              <div class="mode-buttons">
+                <button class="mode-btn active" data-mode="normal">Normal</button>
+                <button class="mode-btn" data-mode="hard">Hard</button>
+                <button class="mode-btn" data-mode="impossible">Impossible</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-row">
+            <div class="pill">
+              <span class="pill-label">Rage</span>
+              <div class="pill-value">
+                <span class="main" id="rageValue">0%</span>
+                <span class="sub" id="rageLabel">Calme (pour l’instant)</span>
+              </div>
+              <div class="progress">
+                <div class="progress-bar" id="rageBar"></div>
+                <div class="progress-glow" id="rageGlow"></div>
+              </div>
+            </div>
+            <div class="pill">
+              <span class="pill-label">Précision</span>
+              <div class="pill-value">
+                <span class="main" id="accuracyValue">100%</span>
+                <span class="sub" id="accuracyLabel">Tu te crois bon ?</span>
+              </div>
+              <div class="progress">
+                <div class="progress-bar" id="accuracyBar"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint">
+            <span class="key">Astuce</span>
+            <span id="hintText">Ne rate pas. Le jeu le prend personnellement.</span>
+          </div>
+
+          <div class="game-area">
+            <div class="game-header">
+              <div class="game-title">
+                <span class="game-title-dot"></span>
+                <span>Zone de torture interactive</span>
+              </div>
+              <div class="game-controls">
+                <label class="ghost-toggle">
+                  <input type="checkbox" id="ghostMode" />
+                  <span class="ghost-pill">
+                    <span class="ghost-knob"></span>
+                  </span>
+                  <span>Ghost mode</span>
+                </label>
+                <div class="rage-meter">
+                  <span class="rage-dot"></span>
+                  <span id="rageStatusText">Tout va bien. Pour l’instant.</span>
+                </div>
+              </div>
+            </div>
+            <div class="playfield" id="playfield">
+              <div class="target" id="target">
+                <span>CLIQUE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-panel">
+          <div class="log">
+            <div class="log-title">Journal de tes échecs</div>
+            <div class="log-list" id="logList"></div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" id="btnStart">
+              <span class="icon">▶</span>
+              <span>Lancer la torture</span>
+            </button>
+            <button class="btn danger" id="btnTilt">
+              <span class="icon">💢</span>
+              <span>Je tilt</span>
+            </button>
+            <button class="btn" id="btnFakeHelp">
+              <span class="icon">❓</span>
+              <span>Besoin d’aide ?</span>
+            </button>
+          </div>
+
+          <div class="footer">
+            <span>
+              <span class="highlight">Règle n°1 :</span>
+              tu ne gagneras pas. Le jeu triche.
+            </span>
+            <span class="subtle">Optimisé pour écran, mobile, et nerfs fragiles.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const playfield = document.getElementById("playfield");
+    const target = document.getElementById("target");
+    const rageValue = document.getElementById("rageValue");
+    const rageLabel = document.getElementById("rageLabel");
+    const rageBar = document.getElementById("rageBar");
+    const rageGlow = document.getElementById("rageGlow");
+    const rageStatusText = document.getElementById("rageStatusText");
+
+    const accuracyValue = document.getElementById("accuracyValue");
+    const accuracyLabel = document.getElementById("accuracyLabel");
+    const accuracyBar = document.getElementById("accuracyBar");
+
+    const hintText = document.getElementById("hintText");
+    const logList = document.getElementById("logList");
+
+    const btnStart = document.getElementById("btnStart");
+    const btnTilt = document.getElementById("btnTilt");
+    const btnFakeHelp = document.getElementById("btnFakeHelp");
+    const ghostModeCheckbox = document.getElementById("ghostMode");
+    const modeButtons = document.querySelectorAll(".mode-btn");
+
+    let mode = "normal";
+    let gameRunning = false;
+    let rage = 0;
+    let clicks = 0;
+    let hits = 0;
+    let missClicks = 0;
+    let moveInterval = null;
+    let ghostMode = false;
+    let fakeClickBaitTimeout = null;
+
+    function log(message, type = "info") {
+      const entry = document.createElement("div");
+      entry.className = "log-entry " + (type === "rage" ? "rage" : type === "success" ? "success" : "");
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = type === "rage" ? "RAGE" : type === "success" ? "GG" : "INFO";
+      const msg = document.createElement("span");
+      msg.className = "msg";
+      msg.textContent = message;
+      entry.appendChild(tag);
+      entry.appendChild(msg);
+      logList.appendChild(entry);
+      logList.scrollTop = logList.scrollHeight;
+    }
+
+    function updateRage(delta) {
+      rage = Math.max(0, Math.min(100, rage + delta));
+      rageValue.textContent = rage + "%";
+      rageBar.style.width = rage + "%";
+      rageGlow.classList.toggle("active", rage > 60);
+
+      if (rage < 20) {
+        rageLabel.textContent = "Calme (pour l’instant)";
+        rageStatusText.textContent = "Tout va bien. Pour l’instant.";
+      } else if (rage < 40) {
+        rageLabel.textContent = "Tu commences à t’énerver.";
+        rageStatusText.textContent = "Le jeu prend des notes.";
+      } else if (rage < 60) {
+        rageLabel.textContent = "Tu cliques trop lentement.";
+        rageStatusText.textContent = "Tu peux faire mieux. Enfin… peut-être.";
+      } else if (rage < 80) {
+        rageLabel.textContent = "Tu es officiellement en tilt.";
+        rageStatusText.textContent = "Le jeu se nourrit de ça.";
+      } else {
+        rageLabel.textContent = "Tu es la victime parfaite.";
+        rageStatusText.textContent = "Continue. Le jeu adore ça.";
+      }
+    }
+
+    function updateAccuracy() {
+      if (clicks === 0) {
+        accuracyValue.textContent = "100%";
+        accuracyBar.style.width = "100%";
+        accuracyLabel.textContent = "Tu te crois bon ?";
+        return;
+      }
+      const acc = Math.round((hits / clicks) * 100);
+      accuracyValue.textContent = acc + "%";
+      accuracyBar.style.width = acc + "%";
+
+      if (acc > 80) {
+        accuracyLabel.textContent = "Ok, tu gères. Pour l’instant.";
+      } else if (acc > 50) {
+        accuracyLabel.textContent = "Mouais. Moyen.";
+      } else if (acc > 20) {
+        accuracyLabel.textContent = "Tu cliques au hasard, non ?";
+      } else {
+        accuracyLabel.textContent = "C’est gênant à regarder.";
+      }
+    }
+
+    function randomInRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function moveTarget(forceFake = false) {
+      const pfRect = playfield.getBoundingClientRect();
+      const size = target.offsetWidth;
+      const padding = 8;
+
+      const maxX = pfRect.width - size - padding;
+      const maxY = pfRect.height - size - padding;
+
+      const x = randomInRange(padding, maxX);
+      const y = randomInRange(padding, maxY);
+
+      target.style.left = x + "px";
+      target.style.top = y + "px";
+
+      const shouldBeFake =
+        forceFake ||
+        (mode === "hard" && Math.random() < 0.25) ||
+        (mode === "impossible" && Math.random() < 0.5);
+
+      target.classList.toggle("fake", shouldBeFake);
+
+      const shouldGhost =
+        ghostMode &&
+        (mode === "hard" || mode === "impossible") &&
+        Math.random() < (mode === "impossible" ? 0.6 : 0.35);
+
+      target.classList.toggle("ghost", shouldGhost);
+
+      if (mode === "impossible" && Math.random() < 0.3) {
+        const texts = [
+          "Trop lent.",
+          "Raté d’avance.",
+          "Tu crois vraiment que tu peux gagner ?",
+          "Pathétique.",
+          "Même un bot ferait mieux."
+        ];
+        const text = texts[Math.floor(Math.random() * texts.length)];
+        spawnFloatingText(x + size / 2, y, text);
+      }
+    }
+
+    function spawnFloatingText(x, y, text) {
+      const ft = document.createElement("div");
+      ft.className = "floating-text";
+      ft.textContent = text;
+      const pfRect = playfield.getBoundingClientRect();
+      ft.style.left = x + "px";
+      ft.style.top = y + "px";
+      playfield.appendChild(ft);
+      setTimeout(() => ft.remove(), 800);
+    }
+
+    function startGame() {
+      if (gameRunning) return;
+      gameRunning = true;
+      btnStart.textContent = "En cours...";
+      btnStart.disabled = true;
+      btnStart.classList.add("disabled");
+      log("La torture commence. Bonne chance. Tu en auras besoin.", "info");
+
+      moveTarget();
+      scheduleMovement();
+    }
+
+    function stopGame() {
+      gameRunning = false;
+      btnStart.textContent = "Relancer la torture";
+      btnStart.disabled = false;
+      btnStart.classList.remove("disabled");
+      clearInterval(moveInterval);
+      moveInterval = null;
+    }
+
+    function scheduleMovement() {
+      clearInterval(moveInterval);
+      let baseDelay;
+      if (mode === "normal") baseDelay = 900;
+      else if (mode === "hard") baseDelay = 600;
+      else baseDelay = 380;
+
+      const jitter = mode === "impossible" ? 220 : 140;
+      moveInterval = setInterval(() => {
+        moveTarget();
+      }, baseDelay + randomInRange(-jitter, jitter));
+    }
+
+    target.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!gameRunning) {
+        updateRage(3);
+        log("Tu cliques sans même avoir lancé le jeu. Désespéré.", "rage");
+        return;
+      }
+
+      clicks++;
+      if (target.classList.contains("ghost")) {
+        updateRage(8);
+        log("Tu as cliqué sur un fantôme. Il n’existait même pas.", "rage");
+        target.classList.add("shake");
+        setTimeout(() => target.classList.remove("shake"), 250);
+      } else if (target.classList.contains("fake")) {
+        updateRage(10);
+        missClicks++;
+        log("C’était une fausse cible. Le jeu te bait.", "rage");
+        spawnFloatingText(e.clientX - playfield.getBoundingClientRect().left, e.clientY - playfield.getBoundingClientRect().top, "BAIT");
+      } else {
+        hits++;
+        updateRage(-4);
+        log("Incroyable, tu as touché la vraie cible.", "success");
+        spawnFloatingText(
+          e.clientX - playfield.getBoundingClientRect().left,
+          e.clientY - playfield.getBoundingClientRect().top,
+          "+1 (pour ton ego)"
+        );
+      }
+
+      updateAccuracy();
+
+      if (mode === "impossible" && Math.random() < 0.4) {
+        moveTarget(true);
+      } else {
+        moveTarget();
+      }
+
+      if (rage >= 100) {
+        log("Rage maximale atteinte. Le jeu a gagné. Toi, non.", "rage");
+        stopGame();
+      }
+    });
+
+    playfield.addEventListener("click", (e) => {
+      if (!gameRunning) return;
+      if (e.target === target) return;
+
+      clicks++;
+      missClicks++;
+      updateRage(6);
+      updateAccuracy();
+      log("Tu as cliqué à côté. Le jeu te juge.", "rage");
+
+      if (mode === "impossible" && Math.random() < 0.5) {
+        moveTarget(true);
+      }
+    });
+
+    btnStart.addEventListener("click", () => {
+      if (!gameRunning) {
+        startGame();
+      }
+    });
+
+    btnTilt.addEventListener("click", () => {
+      updateRage(15);
+      log("Tu as officiellement tilt. Le jeu est fier de toi.", "rage");
+      hintText.textContent = "Plus tu t’énerves, plus le jeu est content.";
+      if (mode === "impossible") {
+        moveTarget(true);
+      }
+    });
+
+    btnFakeHelp.addEventListener("click", () => {
+      updateRage(5);
+      log("Tu as cliqué sur 'Besoin d’aide ?'. Il n’y en a pas.", "rage");
+      hintText.textContent = "Astuce : il n’y a pas d’astuce.";
+      if (fakeClickBaitTimeout) clearTimeout(fakeClickBaitTimeout);
+      fakeClickBaitTimeout = setTimeout(() => {
+        hintText.textContent = "Ne rate pas. Le jeu le prend personnellement.";
+      }, 3500);
+    });
+
+    ghostModeCheckbox.addEventListener("change", () => {
+      ghostMode = ghostModeCheckbox.checked;
+      if (ghostMode) {
+        log("Ghost mode activé. Tu viens de rendre le jeu encore plus injuste.", "info");
+        updateRage(4);
+      } else {
+        log("Ghost mode désactivé. Tu veux une chance, maintenant ?", "info");
+      }
+    });
+
+    modeButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        modeButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        mode = btn.dataset.mode;
+        log("Mode changé : " + mode.toUpperCase() + ". Mauvaise idée.", "info");
+        updateRage(3);
+        scheduleMovement();
+      });
+    });
+
+    window.addEventListener("resize", () => {
+      moveTarget();
+    });
+
+    updateRage(0);
+    updateAccuracy();
+    moveTarget();
+    log("Bienvenue dans Rage Game. Le but : cliquer. Le résultat : souffrir.", "info");
+  </script>
+</body>
