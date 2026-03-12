@@ -1381,6 +1381,125 @@
       }, 8000);
     }
 
+    function activateNightmareMode() {
+  log("Mode NIGHTMARE activé. Tu vas regretter.", "rage");
+  mode = "nightmare";
+  chaosActive = true;
+  document.body.classList.add("chaos");
+
+  // Cible minuscule
+  target.style.width = "35px";
+  target.style.height = "35px";
+
+  // Rage auto
+  const rageInterval = setInterval(() => {
+    if (mode !== "nightmare") {
+      clearInterval(rageInterval);
+      return;
+    }
+    updateRage(2);
+  }, 900);
+
+  // Illusions visuelles
+  const illusionInterval = setInterval(() => {
+    if (mode !== "nightmare") {
+      clearInterval(illusionInterval);
+      return;
+    }
+    document.body.classList.toggle("inverted");
+    flashScreen();
+    shakeBody();
+  }, 1800);
+
+  scheduleMovement();
+}
+
+function activateStreamerMode() {
+  log("Mode STREAMER activé. Le chat te regarde.", "info");
+  mode = "streamer";
+
+  const messages = [
+    "Léounel spotted 😂",
+    "Skill issue",
+    "Bro can't click",
+    "Ratio",
+    "Try harder",
+    "Chat: 💀💀💀",
+    "C’est gênant à regarder",
+    "On clip ça ?"
+  ];
+
+  const chatInterval = setInterval(() => {
+    if (mode !== "streamer") {
+      clearInterval(chatInterval);
+      return;
+    }
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    log(msg, "info");
+  }, 1500);
+}
+
+function activateGlitchMode() {
+  log("Bienvenue dans la GLITCH DIMENSION.", "info");
+  mode = "glitch";
+  chaosActive = true;
+
+  document.body.style.filter = "url('#glitch') hue-rotate(90deg)";
+
+  const glitchInterval = setInterval(() => {
+    if (mode !== "glitch") {
+      clearInterval(glitchInterval);
+      document.body.style.filter = "";
+      return;
+    }
+
+    // Cible change de forme
+    const shapes = ["50%", "20%", "0%", "70%"];
+    target.style.borderRadius = shapes[Math.floor(Math.random() * shapes.length)];
+
+    // Texte glitch
+    const chars = ["#", "@", "%", "&", "?", "!", "¤"];
+    target.querySelector("span").textContent =
+      chars[Math.floor(Math.random() * chars.length)];
+
+    flashScreen();
+  }, 300);
+}
+
+function activateVirusMode() {
+  log("virus.exe détecté…", "rage");
+
+  const popup = document.createElement("div");
+  popup.style.position = "fixed";
+  popup.style.inset = "0";
+  popup.style.background = "rgba(0,0,0,0.9)";
+  popup.style.color = "#0f0";
+  popup.style.fontFamily = "monospace";
+  popup.style.padding = "20px";
+  popup.style.zIndex = "99999";
+  popup.style.whiteSpace = "pre";
+  popup.textContent = "INSTALLATION DE virus.exe...\n\n0%";
+
+  document.body.appendChild(popup);
+
+  let p = 0;
+  const interval = setInterval(() => {
+    p += Math.floor(Math.random() * 15);
+    if (p >= 100) {
+      p = 100;
+      popup.textContent = "INSTALLATION DE virus.exe...\n\n100%\n\nERREUR : utilisateur trop nul.\nAppuie sur une touche.";
+      clearInterval(interval);
+
+      window.addEventListener("keydown", () => {
+        popup.remove();
+      }, { once: true });
+    } else {
+      popup.textContent = `INSTALLATION DE virus.exe...\n\n${p}%`;
+    }
+  }, 300);
+}
+    
+    
     function fakeCrashScreen() {
       log("Le jeu a 'crash'. Comme toi.", "rage");
       const crash = document.createElement("div");
@@ -1595,6 +1714,26 @@
           konamiIndex = 0;
         }
       }
+      if (secretBuffer.endsWith("NIGHT")) {
+  secretBuffer = "";
+  activateNightmareMode();
+}
+
+if (secretBuffer.endsWith("GLITCH")) {
+  secretBuffer = "";
+  activateGlitchMode();
+}
+
+if (secretBuffer.endsWith("VIRUS")) {
+  secretBuffer = "";
+  activateVirusMode();
+}
+
+if (secretBuffer.endsWith("CHAT")) {
+  secretBuffer = "";
+  activateStreamerMode();
+}
+
     });
 
     updateRage(0);
