@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Rage Game v2 – Pack complet de la rage</title>
+  <title>Rage Game v3 – CHAOS ABSOLU</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
@@ -40,11 +40,11 @@
       justify-content: center;
       padding: 16px;
       overflow-x: hidden;
-      transition: filter 0.25s ease-out, background 0.25s ease-out;
+      transition: filter 0.25s ease-out, background 0.25s ease-out, transform 0.2s ease-out;
     }
 
     body.chaos {
-      filter: hue-rotate(180deg) contrast(1.3) saturate(1.6);
+      filter: hue-rotate(180deg) contrast(1.4) saturate(1.7);
       background: radial-gradient(circle at bottom, #020617 0, #111827 40%, #000 100%);
       cursor: crosshair;
     }
@@ -75,7 +75,7 @@
     .flash-overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle, rgba(248, 113, 113, 0.7), transparent);
+      background: radial-gradient(circle, rgba(248, 113, 113, 0.8), transparent);
       opacity: 0;
       pointer-events: none;
       z-index: 5;
@@ -90,7 +90,7 @@
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 960px;
+      max-width: 1100px;
     }
 
     .card {
@@ -105,7 +105,7 @@
     }
 
     body.chaos .card {
-      transform: rotate(-1deg) translateY(-2px);
+      transform: rotate(-1.2deg) translateY(-3px);
     }
 
     .card::before {
@@ -131,14 +131,11 @@
       border: 1px solid rgba(15, 23, 42, 0.9);
       padding: 18px;
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
       gap: 18px;
     }
 
-    @media (max-width: 780px) {
-      .card {
-        padding: 16px;
-      }
+    @media (max-width: 900px) {
       .card-inner {
         grid-template-columns: 1fr;
       }
@@ -181,7 +178,7 @@
     }
 
     h1 {
-      font-size: 1.6rem;
+      font-size: 1.7rem;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       display: flex;
@@ -269,7 +266,7 @@
 
     .pill {
       flex: 1;
-      min-width: 120px;
+      min-width: 140px;
       border-radius: var(--radius-md);
       background: radial-gradient(circle at top left, #111827 0, #020617 70%);
       border: 1px solid rgba(31, 41, 55, 0.9);
@@ -475,13 +472,13 @@
       border-radius: 16px;
       background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%);
       border: 1px dashed rgba(55, 65, 81, 0.9);
-      height: 170px;
+      height: 180px;
       overflow: hidden;
     }
 
     @media (max-width: 480px) {
       .playfield {
-        height: 210px;
+        height: 220px;
       }
     }
 
@@ -517,8 +514,8 @@
     }
 
     body.chaos .target {
-      width: 52px;
-      height: 52px;
+      width: 50px;
+      height: 50px;
     }
 
     .target span {
@@ -766,7 +763,7 @@
       border-radius: 18px;
       border: 1px solid rgba(248, 113, 113, 0.7);
       padding: 18px 20px;
-      max-width: 320px;
+      max-width: 340px;
       width: 90%;
       box-shadow: 0 18px 45px rgba(0, 0, 0, 0.8);
       text-align: center;
@@ -796,6 +793,78 @@
       cursor: pointer;
       font-weight: 600;
     }
+
+    /* Fake leaderboard */
+    .leaderboard {
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 190px;
+      overflow: hidden;
+    }
+
+    .leaderboard-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .leaderboard-list {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+    }
+
+    .leaderboard-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .leaderboard-list::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.6);
+      border-radius: 999px;
+    }
+
+    .leaderboard-entry {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .leaderboard-entry span.name {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .leaderboard-entry span.rank {
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+
+    .leaderboard-entry.me {
+      color: #fecaca;
+    }
+
+    .leaderboard-entry.me span.score {
+      color: #f97316;
+    }
+
+    .leaderboard-entry.me span.name::after {
+      content: "← toi";
+      font-size: 0.7rem;
+      color: #f97316;
+    }
   </style>
 </head>
 <body>
@@ -820,14 +889,14 @@
             <div class="title-block">
               <div class="badge">
                 <span class="badge-dot"></span>
-                <span>Rage-Optimisé v2</span>
+                <span>Rage-Optimisé v3</span>
               </div>
               <h1>
                 <span class="accent">Rage Game</span>
-                <span>v2.0</span>
+                <span>v3.0</span>
               </h1>
               <p class="subtitle">
-                Clique sur la cible. C’est tout. Maintenant avec plus de mauvaise foi.
+                Clique sur la cible. C’est tout. Le reste, c’est ta santé mentale.
               </p>
             </div>
             <div class="mode-switcher">
@@ -836,7 +905,7 @@
                 <button class="mode-btn active" data-mode="normal">Normal</button>
                 <button class="mode-btn" data-mode="hard">Hard</button>
                 <button class="mode-btn" data-mode="impossible">Impossible</button>
-                <button class="mode-btn chaos-btn" data-mode="chaos">Chaos</button>
+                <button class="mode-btn chaos-btn" data-mode="chaos">Chaos absolu</button>
               </div>
             </div>
           </div>
@@ -904,6 +973,11 @@
             <div class="log-list" id="logList"></div>
           </div>
 
+          <div class="leaderboard">
+            <div class="leaderboard-title">Fake leaderboard (tu es nul)</div>
+            <div class="leaderboard-list" id="leaderboardList"></div>
+          </div>
+
           <div class="actions">
             <button class="btn primary" id="btnStart">
               <span class="icon">▶</span>
@@ -946,6 +1020,7 @@
 
     const hintText = document.getElementById("hintText");
     const logList = document.getElementById("logList");
+    const leaderboardList = document.getElementById("leaderboardList");
 
     const btnStart = document.getElementById("btnStart");
     const btnTilt = document.getElementById("btnTilt");
@@ -1081,6 +1156,8 @@
         showRagePopup();
         stopGame();
       }
+
+      updateLeaderboard();
     }
 
     function updateAccuracy() {
@@ -1103,6 +1180,8 @@
       } else {
         accuracyLabel.textContent = "C’est gênant à regarder.";
       }
+
+      updateLeaderboard();
     }
 
     function randomInRange(min, max) {
@@ -1123,12 +1202,12 @@
       target.style.left = x + "px";
       target.style.top = y + "px";
 
-      const chaosBias = chaosActive ? 0.2 : 0;
+      const chaosBias = chaosActive ? 0.25 : 0;
       const shouldBeFake =
         forceFake ||
         (mode === "hard" && Math.random() < 0.25 + chaosBias) ||
         (mode === "impossible" && Math.random() < 0.5 + chaosBias) ||
-        (mode === "chaos" && Math.random() < 0.6);
+        (mode === "chaos" && Math.random() < 0.65);
 
       target.classList.toggle("fake", shouldBeFake);
 
@@ -1148,14 +1227,16 @@
           "Même un bot ferait mieux.",
           "Alt+F4 pour gagner.",
           "Skill issue.",
-          "C’est ton meilleur score ?"
+          "C’est ton meilleur score ?",
+          "On arrête là ?",
+          "Tu payes ton ping ?"
         ];
         const text = texts[Math.floor(Math.random() * texts.length)];
         spawnFloatingText(x + size / 2, y, text);
       }
 
-      if (chaosActive && Math.random() < 0.25) {
-        const labels = ["CLIQUE", "RAPIDE", "TROP LENT", "LOL", "NOOB"];
+      if (chaosActive && Math.random() < 0.3) {
+        const labels = ["CLIQUE", "RAPIDE", "TROP LENT", "LOL", "NOOB", "MISS", "WHY"];
         target.querySelector("span").textContent =
           labels[Math.floor(Math.random() * labels.length)];
       }
@@ -1199,7 +1280,7 @@
       if (mode === "normal") baseDelay = 900;
       else if (mode === "hard") baseDelay = 600;
       else if (mode === "impossible") baseDelay = 380;
-      else baseDelay = 320; // chaos
+      else baseDelay = 300; // chaos
 
       const jitter = mode === "impossible" || mode === "chaos" ? 220 : 140;
       moveInterval = setInterval(() => {
@@ -1225,6 +1306,41 @@
       ragePopup.classList.remove("active");
       updateRage(-40);
       log("Tu reviens. Le jeu est ravi.", "info");
+    }
+
+    function updateLeaderboard() {
+      leaderboardList.innerHTML = "";
+      const acc = clicks === 0 ? 100 : Math.round((hits / clicks) * 100);
+      const rageScore = rage;
+      const fakePlayers = [
+        { name: "tryhard_3000", score: 9999 },
+        { name: "aimbot.exe", score: 9876 },
+        { name: "noLife42", score: 9500 },
+        { name: "smurf_smurf", score: 9000 },
+        { name: "random_god", score: 8500 }
+      ];
+
+      const myScore = Math.max(0, Math.round(acc * 10 - rageScore * 3));
+      const entries = [...fakePlayers, { name: "toi", score: myScore }];
+      entries.sort((a, b) => b.score - a.score);
+
+      entries.forEach((p, index) => {
+        const row = document.createElement("div");
+        row.className = "leaderboard-entry" + (p.name === "toi" ? " me" : "");
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "name";
+        const rankSpan = document.createElement("span");
+        rankSpan.className = "rank";
+        rankSpan.textContent = "#" + (index + 1);
+        nameSpan.textContent = p.name;
+        const scoreSpan = document.createElement("span");
+        scoreSpan.className = "score";
+        scoreSpan.textContent = p.score + " pts";
+        row.appendChild(nameSpan);
+        row.appendChild(scoreSpan);
+        row.appendChild(rankSpan);
+        leaderboardList.appendChild(row);
+      });
     }
 
     target.addEventListener("click", (e) => {
@@ -1354,7 +1470,9 @@
     updateRage(0);
     updateAccuracy();
     moveTarget();
-    log("Bienvenue dans Rage Game v2. Le but : cliquer. Le résultat : souffrir, avec effets spéciaux.", "info");
+    updateLeaderboard();
+    log("Bienvenue dans Rage Game v3. Le but : cliquer. Le résultat : souffrir, avec effets spéciaux et humiliation publique.", "info");
   </script>
 </body>
 </html>
+
