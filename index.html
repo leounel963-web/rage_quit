@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Rage Game – Tu ne gagneras jamais</title>
+  <title>Rage Game v2 – Pack complet de la rage</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
@@ -40,6 +40,26 @@
       justify-content: center;
       padding: 16px;
       overflow-x: hidden;
+      transition: filter 0.25s ease-out, background 0.25s ease-out;
+    }
+
+    body.chaos {
+      filter: hue-rotate(180deg) contrast(1.3) saturate(1.6);
+      background: radial-gradient(circle at bottom, #020617 0, #111827 40%, #000 100%);
+      cursor: crosshair;
+    }
+
+    body.shake {
+      animation: bodyShake 0.4s ease-in-out;
+    }
+
+    @keyframes bodyShake {
+      0% { transform: translate(0, 0); }
+      20% { transform: translate(-4px, 3px); }
+      40% { transform: translate(4px, -3px); }
+      60% { transform: translate(-3px, 2px); }
+      80% { transform: translate(3px, -2px); }
+      100% { transform: translate(0, 0); }
     }
 
     .noise {
@@ -50,6 +70,20 @@
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.9'/%3E%3C/svg%3E");
       mix-blend-mode: soft-light;
       z-index: 0;
+    }
+
+    .flash-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle, rgba(248, 113, 113, 0.7), transparent);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+      transition: opacity 0.18s ease-out;
+    }
+
+    .flash-overlay.active {
+      opacity: 1;
     }
 
     .wrapper {
@@ -67,6 +101,11 @@
       padding: 22px 22px 18px;
       position: relative;
       overflow: hidden;
+      transition: transform 0.18s ease-out;
+    }
+
+    body.chaos .card {
+      transform: rotate(-1deg) translateY(-2px);
     }
 
     .card::before {
@@ -182,6 +221,7 @@
       background: rgba(15, 23, 42, 0.9);
       border: 1px solid rgba(148, 163, 184, 0.35);
       gap: 4px;
+      flex-wrap: wrap;
     }
 
     .mode-btn {
@@ -205,6 +245,10 @@
       color: #020617;
       font-weight: 600;
       box-shadow: 0 0 18px rgba(248, 113, 113, 0.7);
+    }
+
+    .mode-btn.chaos-btn.active {
+      background: radial-gradient(circle at top, #22c55e, #ef4444);
     }
 
     .mode-btn:active {
@@ -421,18 +465,9 @@
     }
 
     @keyframes pulse {
-      0% {
-        transform: scale(1);
-        opacity: 0.9;
-      }
-      50% {
-        transform: scale(1.4);
-        opacity: 0.4;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 0.9;
-      }
+      0% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.4); opacity: 0.4; }
+      100% { transform: scale(1); opacity: 0.9; }
     }
 
     .playfield {
@@ -448,6 +483,18 @@
       .playfield {
         height: 210px;
       }
+    }
+
+    .playfield.shake {
+      animation: pfShake 0.25s ease-in-out;
+    }
+
+    @keyframes pfShake {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(-3px, 2px); }
+      50% { transform: translate(3px, -2px); }
+      75% { transform: translate(-2px, 1px); }
+      100% { transform: translate(0, 0); }
     }
 
     .target {
@@ -466,7 +513,12 @@
       cursor: pointer;
       user-select: none;
       transform-origin: center;
-      transition: transform 0.08s ease-out, filter 0.08s ease-out;
+      transition: transform 0.08s ease-out, filter 0.08s ease-out, width 0.15s ease-out, height 0.15s ease-out;
+    }
+
+    body.chaos .target {
+      width: 52px;
+      height: 52px;
     }
 
     .target span {
@@ -495,21 +547,11 @@
     }
 
     @keyframes shake {
-      0% {
-        transform: translateX(0);
-      }
-      25% {
-        transform: translateX(-4px);
-      }
-      50% {
-        transform: translateX(4px);
-      }
-      75% {
-        transform: translateX(-3px);
-      }
-      100% {
-        transform: translateX(0);
-      }
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      50% { transform: translateX(4px); }
+      75% { transform: translateX(-3px); }
+      100% { transform: translateX(0); }
     }
 
     .floating-text {
@@ -521,20 +563,13 @@
       transform: translate(-50%, -50%);
       animation: floatUp 0.7s ease-out forwards;
       text-shadow: 0 0 10px rgba(248, 113, 113, 0.9);
+      white-space: nowrap;
     }
 
     @keyframes floatUp {
-      0% {
-        opacity: 0;
-        transform: translate(-50%, -10%);
-      }
-      20% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-        transform: translate(-50%, -80%);
-      }
+      0% { opacity: 0; transform: translate(-50%, -10%); }
+      20% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%, -80%); }
     }
 
     .right-panel {
@@ -706,10 +741,77 @@
         align-items: flex-start;
       }
     }
+
+    /* Faux popup de défaite */
+    .rage-popup {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.85);
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-out;
+    }
+
+    .rage-popup.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .rage-popup-inner {
+      background: radial-gradient(circle at top, #111827 0, #020617 60%);
+      border-radius: 18px;
+      border: 1px solid rgba(248, 113, 113, 0.7);
+      padding: 18px 20px;
+      max-width: 320px;
+      width: 90%;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.8);
+      text-align: center;
+    }
+
+    .rage-popup-title {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #fecaca;
+      margin-bottom: 6px;
+    }
+
+    .rage-popup-text {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .rage-popup-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(248, 113, 113, 0.9);
+      background: radial-gradient(circle at top, #f97316, #ef4444);
+      color: #020617;
+      font-size: 0.8rem;
+      padding: 7px 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
   <div class="noise"></div>
+  <div class="flash-overlay" id="flashOverlay"></div>
+
+  <div class="rage-popup" id="ragePopup">
+    <div class="rage-popup-inner">
+      <div class="rage-popup-title">Défaite totale</div>
+      <div class="rage-popup-text" id="ragePopupText">
+        Le jeu a gagné. Tes nerfs, non.
+      </div>
+      <button class="rage-popup-btn" id="ragePopupBtn">Revenir souffrir</button>
+    </div>
+  </div>
+
   <div class="wrapper">
     <div class="card">
       <div class="card-inner">
@@ -718,14 +820,14 @@
             <div class="title-block">
               <div class="badge">
                 <span class="badge-dot"></span>
-                <span>Rage-Optimisé</span>
+                <span>Rage-Optimisé v2</span>
               </div>
               <h1>
                 <span class="accent">Rage Game</span>
-                <span>v1.0</span>
+                <span>v2.0</span>
               </h1>
               <p class="subtitle">
-                Clique sur la cible. C’est tout. Facile. Enfin… en théorie.
+                Clique sur la cible. C’est tout. Maintenant avec plus de mauvaise foi.
               </p>
             </div>
             <div class="mode-switcher">
@@ -734,6 +836,7 @@
                 <button class="mode-btn active" data-mode="normal">Normal</button>
                 <button class="mode-btn" data-mode="hard">Hard</button>
                 <button class="mode-btn" data-mode="impossible">Impossible</button>
+                <button class="mode-btn chaos-btn" data-mode="chaos">Chaos</button>
               </div>
             </div>
           </div>
@@ -850,6 +953,11 @@
     const ghostModeCheckbox = document.getElementById("ghostMode");
     const modeButtons = document.querySelectorAll(".mode-btn");
 
+    const flashOverlay = document.getElementById("flashOverlay");
+    const ragePopup = document.getElementById("ragePopup");
+    const ragePopupText = document.getElementById("ragePopupText");
+    const ragePopupBtn = document.getElementById("ragePopupBtn");
+
     let mode = "normal";
     let gameRunning = false;
     let rage = 0;
@@ -859,6 +967,53 @@
     let moveInterval = null;
     let ghostMode = false;
     let fakeClickBaitTimeout = null;
+    let chaosActive = false;
+
+    // Web Audio minimal pour sons de rage
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        try {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+          audioCtx = null;
+        }
+      }
+    }
+
+    function playBeep(freq = 440, duration = 120, type = "square", volume = 0.15) {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.value = volume;
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      setTimeout(() => {
+        osc.stop();
+      }, duration);
+    }
+
+    function playMissSound() {
+      playBeep(220, 160, "square", 0.18);
+      setTimeout(() => playBeep(160, 160, "square", 0.16), 80);
+    }
+
+    function playHitSound() {
+      playBeep(720, 90, "sawtooth", 0.16);
+    }
+
+    function playTiltSound() {
+      playBeep(120, 260, "square", 0.22);
+    }
+
+    function vibrate(pattern) {
+      if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+      }
+    }
 
     function log(message, type = "info") {
       const entry = document.createElement("div");
@@ -873,6 +1028,21 @@
       entry.appendChild(msg);
       logList.appendChild(entry);
       logList.scrollTop = logList.scrollHeight;
+    }
+
+    function flashScreen() {
+      flashOverlay.classList.add("active");
+      setTimeout(() => flashOverlay.classList.remove("active"), 120);
+    }
+
+    function shakePlayfield() {
+      playfield.classList.add("shake");
+      setTimeout(() => playfield.classList.remove("shake"), 260);
+    }
+
+    function shakeBody() {
+      document.body.classList.add("shake");
+      setTimeout(() => document.body.classList.remove("shake"), 420);
     }
 
     function updateRage(delta) {
@@ -896,6 +1066,20 @@
       } else {
         rageLabel.textContent = "Tu es la victime parfaite.";
         rageStatusText.textContent = "Continue. Le jeu adore ça.";
+      }
+
+      if (rage >= 80) {
+        flashScreen();
+        shakePlayfield();
+        vibrate([60, 40, 60]);
+      }
+      if (rage >= 95 && chaosActive) {
+        shakeBody();
+      }
+
+      if (rage >= 100) {
+        showRagePopup();
+        stopGame();
       }
     }
 
@@ -933,36 +1117,47 @@
       const maxX = pfRect.width - size - padding;
       const maxY = pfRect.height - size - padding;
 
-      const x = randomInRange(padding, maxX);
-      const y = randomInRange(padding, maxY);
+      const x = randomInRange(padding, Math.max(padding, maxX));
+      const y = randomInRange(padding, Math.max(padding, maxY));
 
       target.style.left = x + "px";
       target.style.top = y + "px";
 
+      const chaosBias = chaosActive ? 0.2 : 0;
       const shouldBeFake =
         forceFake ||
-        (mode === "hard" && Math.random() < 0.25) ||
-        (mode === "impossible" && Math.random() < 0.5);
+        (mode === "hard" && Math.random() < 0.25 + chaosBias) ||
+        (mode === "impossible" && Math.random() < 0.5 + chaosBias) ||
+        (mode === "chaos" && Math.random() < 0.6);
 
       target.classList.toggle("fake", shouldBeFake);
 
       const shouldGhost =
         ghostMode &&
-        (mode === "hard" || mode === "impossible") &&
-        Math.random() < (mode === "impossible" ? 0.6 : 0.35);
+        (mode === "hard" || mode === "impossible" || mode === "chaos") &&
+        Math.random() < (mode === "impossible" || mode === "chaos" ? 0.6 : 0.35);
 
       target.classList.toggle("ghost", shouldGhost);
 
-      if (mode === "impossible" && Math.random() < 0.3) {
+      if ((mode === "impossible" || mode === "chaos") && Math.random() < 0.35) {
         const texts = [
           "Trop lent.",
           "Raté d’avance.",
           "Tu crois vraiment que tu peux gagner ?",
           "Pathétique.",
-          "Même un bot ferait mieux."
+          "Même un bot ferait mieux.",
+          "Alt+F4 pour gagner.",
+          "Skill issue.",
+          "C’est ton meilleur score ?"
         ];
         const text = texts[Math.floor(Math.random() * texts.length)];
         spawnFloatingText(x + size / 2, y, text);
+      }
+
+      if (chaosActive && Math.random() < 0.25) {
+        const labels = ["CLIQUE", "RAPIDE", "TROP LENT", "LOL", "NOOB"];
+        target.querySelector("span").textContent =
+          labels[Math.floor(Math.random() * labels.length)];
       }
     }
 
@@ -970,7 +1165,6 @@
       const ft = document.createElement("div");
       ft.className = "floating-text";
       ft.textContent = text;
-      const pfRect = playfield.getBoundingClientRect();
       ft.style.left = x + "px";
       ft.style.top = y + "px";
       playfield.appendChild(ft);
@@ -979,6 +1173,7 @@
 
     function startGame() {
       if (gameRunning) return;
+      initAudio();
       gameRunning = true;
       btnStart.textContent = "En cours...";
       btnStart.disabled = true;
@@ -1003,12 +1198,33 @@
       let baseDelay;
       if (mode === "normal") baseDelay = 900;
       else if (mode === "hard") baseDelay = 600;
-      else baseDelay = 380;
+      else if (mode === "impossible") baseDelay = 380;
+      else baseDelay = 320; // chaos
 
-      const jitter = mode === "impossible" ? 220 : 140;
+      const jitter = mode === "impossible" || mode === "chaos" ? 220 : 140;
       moveInterval = setInterval(() => {
         moveTarget();
       }, baseDelay + randomInRange(-jitter, jitter));
+    }
+
+    function showRagePopup() {
+      const messages = [
+        "Le jeu a gagné. Tes nerfs, non.",
+        "Tu viens de perdre contre un cercle rouge.",
+        "Résultat : 0% de dignité restante.",
+        "Tu peux réessayer… mais pourquoi ?"
+      ];
+      ragePopupText.textContent =
+        messages[Math.floor(Math.random() * messages.length)];
+      ragePopup.classList.add("active");
+      vibrate([80, 40, 80, 40, 120]);
+      playTiltSound();
+    }
+
+    function hideRagePopup() {
+      ragePopup.classList.remove("active");
+      updateRage(-40);
+      log("Tu reviens. Le jeu est ravi.", "info");
     }
 
     target.addEventListener("click", (e) => {
@@ -1016,6 +1232,7 @@
       if (!gameRunning) {
         updateRage(3);
         log("Tu cliques sans même avoir lancé le jeu. Désespéré.", "rage");
+        playMissSound();
         return;
       }
 
@@ -1025,11 +1242,17 @@
         log("Tu as cliqué sur un fantôme. Il n’existait même pas.", "rage");
         target.classList.add("shake");
         setTimeout(() => target.classList.remove("shake"), 250);
+        playMissSound();
       } else if (target.classList.contains("fake")) {
         updateRage(10);
         missClicks++;
         log("C’était une fausse cible. Le jeu te bait.", "rage");
-        spawnFloatingText(e.clientX - playfield.getBoundingClientRect().left, e.clientY - playfield.getBoundingClientRect().top, "BAIT");
+        spawnFloatingText(
+          e.clientX - playfield.getBoundingClientRect().left,
+          e.clientY - playfield.getBoundingClientRect().top,
+          "BAIT"
+        );
+        playMissSound();
       } else {
         hits++;
         updateRage(-4);
@@ -1039,19 +1262,15 @@
           e.clientY - playfield.getBoundingClientRect().top,
           "+1 (pour ton ego)"
         );
+        playHitSound();
       }
 
       updateAccuracy();
 
-      if (mode === "impossible" && Math.random() < 0.4) {
+      if ((mode === "impossible" || mode === "chaos") && Math.random() < 0.4) {
         moveTarget(true);
       } else {
         moveTarget();
-      }
-
-      if (rage >= 100) {
-        log("Rage maximale atteinte. Le jeu a gagné. Toi, non.", "rage");
-        stopGame();
       }
     });
 
@@ -1064,8 +1283,10 @@
       updateRage(6);
       updateAccuracy();
       log("Tu as cliqué à côté. Le jeu te juge.", "rage");
+      playMissSound();
+      shakePlayfield();
 
-      if (mode === "impossible" && Math.random() < 0.5) {
+      if ((mode === "impossible" || mode === "chaos") && Math.random() < 0.5) {
         moveTarget(true);
       }
     });
@@ -1080,7 +1301,9 @@
       updateRage(15);
       log("Tu as officiellement tilt. Le jeu est fier de toi.", "rage");
       hintText.textContent = "Plus tu t’énerves, plus le jeu est content.";
-      if (mode === "impossible") {
+      playTiltSound();
+      vibrate([80, 40, 80]);
+      if (mode === "impossible" || mode === "chaos") {
         moveTarget(true);
       }
     });
@@ -1089,6 +1312,7 @@
       updateRage(5);
       log("Tu as cliqué sur 'Besoin d’aide ?'. Il n’y en a pas.", "rage");
       hintText.textContent = "Astuce : il n’y a pas d’astuce.";
+      playMissSound();
       if (fakeClickBaitTimeout) clearTimeout(fakeClickBaitTimeout);
       fakeClickBaitTimeout = setTimeout(() => {
         hintText.textContent = "Ne rate pas. Le jeu le prend personnellement.";
@@ -1110,19 +1334,27 @@
         modeButtons.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         mode = btn.dataset.mode;
+        chaosActive = mode === "chaos";
+        document.body.classList.toggle("chaos", chaosActive);
         log("Mode changé : " + mode.toUpperCase() + ". Mauvaise idée.", "info");
         updateRage(3);
         scheduleMovement();
       });
     });
 
+    ragePopupBtn.addEventListener("click", () => {
+      hideRagePopup();
+    });
+
     window.addEventListener("resize", () => {
       moveTarget();
     });
 
+    // Init
     updateRage(0);
     updateAccuracy();
     moveTarget();
-    log("Bienvenue dans Rage Game. Le but : cliquer. Le résultat : souffrir.", "info");
+    log("Bienvenue dans Rage Game v2. Le but : cliquer. Le résultat : souffrir, avec effets spéciaux.", "info");
   </script>
 </body>
+</html>
